@@ -13,26 +13,29 @@ from . import models
 
 # 밑에처럼 추가할 수 있음
 # @admin.register(models.User)
-# class CustomUserAdmin(UserAdmin):
+# class CustomUserAdmin(UserAdmin):  <---- 경우 잘 설정되어있는 UserAdmin 불러오는거
 # class CustomUserAdmin(admin.ModelAdmin): <---- 의 경우 기본 Admin을 불러오는거
 #    pass
 @admin.register(models.User)
 class CustomUserAdmin(UserAdmin):
     """Custom User Admin"""
 
-    fieldsets = UserAdmin.fieldsets + (
-        (
-            "Custom Profile",
-            {
-                "fields": (
-                    "avatar",
-                    "gender",
-                    "bio",
-                    "birthdate",
-                    "language",
-                    "currency",
-                    "superhost",
-                )
-            },
-        ),
-    )
+    pass
+
+
+# fieldsets = UserAdmin.fieldsets + (
+#     (
+#         "Custom Profile",
+#         {
+#             "fields": (
+#                 "avatar",
+#                 "gender",
+#                 "bio",
+#                 "birthdate",
+#                 "language",
+#                 "currency",
+#                 "superhost",
+#             )
+#         },
+#     ),
+# )
