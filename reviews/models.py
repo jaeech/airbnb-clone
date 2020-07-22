@@ -24,3 +24,17 @@ class Review(core_models.TimeStampedModel):
         # 그 안에 있는 model들을 가져올 수 있음
         # self.room.name
         return f"{self.review} - {self.room}"
+
+    # Model에 직접 function을 만들어줘서 여러곳에서 사용가능하도록 만들 수 있음
+    def rating_average(self):
+        avg = (
+            self.accuracy
+            + self.communication
+            + self.cleanliness
+            + self.location
+            + self.check_in
+            + self.value
+        ) / 6
+
+        return round(avg, 2)
+

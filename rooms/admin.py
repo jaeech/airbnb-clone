@@ -70,6 +70,7 @@ class RoomAdmin(admin.ModelAdmin):
         # 별도로 생성한 function
         "count_amenities",
         "count_photos",
+        "total_rating",
     )
 
     # Admin 패널이 자동으로 기본정렬이 됨 (작성 순서대로)
@@ -111,3 +112,4 @@ class RoomAdmin(admin.ModelAdmin):
     # 저장된 photos 개수를 확인
     def count_photos(self, obj):
         return obj.photos.count()
+
