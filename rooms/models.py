@@ -119,8 +119,8 @@ class Room(core_models.TimeStampedModel):
         # Room.objects를 하기와 같이 그냥 self로 표현가능
         all_reviews = self.reviews.all()
         all_ratings = 0
-        for review in all_reviews:
-            all_ratings += review.rating_average()
-
-        return all_ratings / len(all_reviews)
-
+        if len(all_reviews) > 0:
+            for review in all_reviews:
+                all_ratings += review.rating_average()
+            return all_ratings / len(all_reviews)
+        return 0
