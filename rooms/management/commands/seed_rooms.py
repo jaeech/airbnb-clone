@@ -46,6 +46,10 @@ class Command(BaseCommand):
         # flatten은 중첩된 리스트를 한단계 풀기 위해 적용
         ids_from_created_rooms = flatten(created_rooms.values())
 
+        amenities = room_models.Amenity.objects.all()
+        facilities = room_models.Facility.objects.all()
+        rules = room_models.HouseRule.objects.all()
+
         # 생성된 각 Room에 대해 포토를 저장하기
         for pk in ids_from_created_rooms:
             # pk(id) 번호에 대한 이름을 추출하기
@@ -55,10 +59,27 @@ class Command(BaseCommand):
             for i in range(2, random.randint(3, 20)):
                 # photo 생성은 seeder랑 다른 형태로 생성되어야 함
                 # objects.create() 형식으로
+                # ForeignKey을 가지는 object에 대한 생성방식
                 room_models.Photo.objects.create(
                     caption=seeder.faker.city(),
                     file=f"/room_photos/{random.randint(1,30)}.webp",
                     room=room_name,
                 )
+
+            # many to many relation의 경우, 하기와 같이 랜덤 선택 가능
+            for a in amenities:
+                random_number = random.randint(0, 15)
+                if random_number % 2 == 0:
+                    room_name.amenities.add(a)
+
+            for f in facilities:
+                random_number = random.randint(0, 15)
+                if random_number % 2 == 0:
+                    room_name.facilities.add(f)
+
+            for h in rules:
+                random_number = random.randint(0, 15)
+                if random_number % 2 == 0:
+                    room_name.house_rules.add(h)
 
         self.stdout.write(self.style.SUCCESS(f"{number} rooms created"))
