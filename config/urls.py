@@ -16,6 +16,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+# 직접적으로 settings를 가져오는게 아니라
+# settings의 mirror를 가져오는 것
+# 개발단계에서만?(파일업로드 관련)
+from django.conf import settings
+
+# DEBUG 모드일때 URL 패턴을 지원해주는 module
+from django.conf.urls.static import static
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
 ]
+
+if settings.DEBUG:
+    # MEDIA_URL이 MEDIA_ROOT로 redirect 되도록 지정
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

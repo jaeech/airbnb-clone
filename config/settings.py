@@ -22,6 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "($vc37aqwm89g+l3ah^fkl+$%u@4wc(xra@65qu@=9k3y)$ht#"
 
+### 개발 단계에서만 DEBUGGING 내용을 볼 수 있게 해줌
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -30,7 +31,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-THIRD_PARTY_APPS = ["django_countries"]
+THIRD_PARTY_APPS = ["django_countries", "django_seed"]
 
 DJANGO_APPS = [
     "django.contrib.admin",
@@ -129,3 +130,12 @@ USE_TZ = False
 STATIC_URL = "/static/"
 
 AUTH_USER_MODEL = "users.User"
+
+
+### 파일 업로드를 서버에 직접적으로 하는 것은 개발단계에서만 하는 것
+### 개발단계 이후에는 별도의 서버에 파일 저장
+# 어느폴더에 미디어를 저장할 것인지 지정
+MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
+
+# 앞에 /을 붙임으로 인해서 root/media 폴더를 확인하도록 만드는 것
+MEDIA_URL = "/media/"

@@ -60,7 +60,8 @@ class Photo(core_models.TimeStampedModel):
     """ Photo Model Definition """
 
     caption = models.CharField(max_length=80)
-    file = models.ImageField()
+    # 어느폴더에 저장할 것인지 지정
+    file = models.ImageField(upload_to="room_photos")
     room = models.ForeignKey("Room", related_name="photos", on_delete=models.CASCADE)
 
     # Admin에 보여지는 명칭을 지정해주기 위해
@@ -107,7 +108,13 @@ class Room(core_models.TimeStampedModel):
     def __str__(self):
         return self.name
 
-    #
+    # 저장 시, 내용을 변경해서 저장하고 싶을 경우에
+    # super()를 이용해 변경하는것
+    # save()는 django의 save method를 가져와서 변경하는 것
+    def save(self, *args, **kwargs):
+        self.city = str.capitalize(self.city)
+        super().save(*args, **kwargs)  # Call the real save() method  #
+
     def total_rating(self):
         # Room.objects를 하기와 같이 그냥 self로 표현가능
         all_reviews = self.reviews.all()
