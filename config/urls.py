@@ -14,7 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+
+# 다른 폴더내에 생성되어있는 내역을 가져오기 위해서 inclue 를 추가로 import
+from django.urls import path, include
 
 # 직접적으로 settings를 가져오는게 아니라
 # settings의 mirror를 가져오는 것
@@ -25,6 +27,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    # 하기와 같은 방식으로 각 url 셋팅 가능
+    path("", include("core.urls", namespace="core")),
     path("admin/", admin.site.urls),
 ]
 
