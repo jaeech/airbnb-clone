@@ -1,5 +1,8 @@
 from django.db import models
 
+# url의 이름을 받아서 해당 이름에 맞느 url을 불러오는 기능
+from django.urls import reverse
+
 # django_countries 라이브러리를 다운받아서 사용
 from django_countries.fields import CountryField
 
@@ -114,6 +117,11 @@ class Room(core_models.TimeStampedModel):
     def save(self, *args, **kwargs):
         self.city = str.capitalize(self.city)
         super().save(*args, **kwargs)  # Call the real save() method  #
+
+    # admin 페이지에서 ROOM의 실제 페이지에 접속 가능하게 만드는
+    # View on Site 기능을 만듦
+    def get_absolute_url(self):
+        return reverse("rooms:detail", kwargs={"pk": self.pk})
 
     def total_rating(self):
         # Room.objects를 하기와 같이 그냥 self로 표현가능

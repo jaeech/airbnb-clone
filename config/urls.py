@@ -28,7 +28,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     # 하기와 같은 방식으로 각 url 셋팅 가능
+    # namespace를 넣는 이유는
     path("", include("core.urls", namespace="core")),
+    path("rooms/", include("rooms.urls", namespace="rooms")),
     path("admin/", admin.site.urls),
 ]
 

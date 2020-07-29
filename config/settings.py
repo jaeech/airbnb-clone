@@ -24,9 +24,9 @@ SECRET_KEY = "($vc37aqwm89g+l3ah^fkl+$%u@4wc(xra@65qu@=9k3y)$ht#"
 
 ### 개발 단계에서만 DEBUGGING 내용을 볼 수 있게 해줌
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = "*"
 
 
 # Application definition

@@ -7,7 +7,12 @@ Home
 {%block content %}
 {{now}}
 {% for room in rooms %}
-    <h4>{{room.name}} / ${{room.price}}</h4>
+    
+    <h5>
+        <a href="{% url "rooms:detail" room.pk %}">
+            {{room.name}} / ${{room.price}}
+        </a>
+    </h5>
 {% endfor %}
 
 <h5>
