@@ -8,6 +8,6 @@ app_name = "rooms"
 # Detailview에서 자동으로 pk를 끌어가서 view를 설정함
 urlpatterns = [
     path("<int:pk>", views.RoomDetail.as_view(), name="detail"),
-    path("search/", views.search, name="search"),
+    path("search/", views.SearchView.as_view(), name="search"),
 ]
 
