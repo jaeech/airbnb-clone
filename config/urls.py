@@ -31,6 +31,7 @@ urlpatterns = [
     # namespace를 넣는 이유는
     path("", include("core.urls", namespace="core")),
     path("rooms/", include("rooms.urls", namespace="rooms")),
+    path("users/", include("users.urls", namespace="users")),
     path("admin/", admin.site.urls),
 ]
 
