@@ -15,12 +15,35 @@
     <form method= "get" action="{% url "rooms:search" %}">
         {{form.as_p}}
         <button>Search</button>
-    </form>    
+    </form>
 
     <h3>Results</h3>
 
     {% for room in rooms %}
-        <h4>{{room.name}}</h4>
+        <h4>
+            <a href="{% url "rooms:detail" room.pk %}">
+                {{room.name}} / ${{room.price}}
+            </a>
+        </h4>
     {% endfor %}
+    
+
+    <h5>
+    {% if rooms.has_previous %}
+        <a href="{{request.get_full_path}}&page={{rooms.previous_page_number}}">Previous</a>
+    {% else %}
+        <span>Previous</span>
+    {% endif %}
+
+        Page {{rooms.number}} of {{rooms.paginator.num_pages}}
+
+    {% if rooms.has_next %}
+        <a href="{{request.get_full_path}}&page={{rooms.next_page_number}}">Next</a>
+    {% else %}
+        <span>Next</span>
+    {% endif %}
+        
+    </h5>
+
 
 {% endblock content %}
