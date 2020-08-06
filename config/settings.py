@@ -140,3 +140,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
 
 # 앞에 /을 붙임으로 인해서 root/media 폴더를 확인하도록 만드는 것
 MEDIA_URL = "/media/"
+
+
+# Email configuration
+EMAIL_HOST = "smtp.mailgun.org"
+EMAIL_PORT = "587"
+EMAIL_HOST_USER = os.environ.get("MAILGUN_USERNAME")
+EMAIL_HOST_PASSWORD = os.environ.get("MAILGUN_PASSWORD")

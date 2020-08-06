@@ -45,4 +45,6 @@ class SignUpView(FormView):
         user = authenticate(self.request, username=email, password=password)
         if user is not None:
             login(self.request, user)
+        # Models.py에 만든 veryfy_email method를 사용
+        user.verify_email()
         return super().form_valid(form)
