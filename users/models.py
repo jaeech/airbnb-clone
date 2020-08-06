@@ -55,7 +55,9 @@ class User(AbstractUser):
         if self.email_verified is False:
             secret = uuid.uuid4().hex[:20]
             self.email_secret = secret
+            self.save()
             # HTML을 메일로 보내기위해서 설정
+            # render_to_string을 사용해서 template 보내기
             html_message = render_to_string(
                 "emails/verify_email.html", {"secret": secret}
             )

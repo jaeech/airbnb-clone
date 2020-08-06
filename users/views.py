@@ -3,7 +3,7 @@ from django.views.generic import FormView
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
-from . import forms
+from . import forms, models
 
 
 class LoginView(FormView):
@@ -35,7 +35,6 @@ class SignUpView(FormView):
     # config.urls.py가 불려오기 전에 불려오는 것을 방지하기위해서
     # reverse_lazy를 사용함
     success_url = reverse_lazy("core:home")
-    initial = {"first_name": "Jaechan", "last_name": "Kim", "email": "jaeech@nate.com"}
 
     def form_valid(self, form):
         # form 이 유효하면 form을 저장할것
@@ -48,3 +47,18 @@ class SignUpView(FormView):
         # Models.py에 만든 veryfy_email method를 사용
         user.verify_email()
         return super().form_valid(form)
+
+
+def complete_verification(request, key):
+    try:
+        user = models.User.objects.get(email_secret=key)
+        user.email_verified = True
+        user.email_secret = ""
+        user.save()
+        # to do: add success message
+    except models.User.DoesNotExist:
+        # to do: Have to put an error message
+        pass
+
+    return redirect(reverse("core:home"))
+
