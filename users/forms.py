@@ -24,4 +24,4 @@ class LoginForm(forms.Form):
                 self.add_error("password", forms.ValidationError("Password is wrong"))
         except models.User.DoesNotExist:
             # Error 위치 지정하기 위해서
-            self.add_eorr("email", forms.ValidationError("User does not exist"))
+            self.add_error("email", forms.ValidationError("User does not exist"))
