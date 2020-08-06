@@ -22,26 +22,6 @@ class LoginView(FormView):
             login(self.request, user)
         return super().form_valid(form)
 
-    #### function based view ####
-    # def get(self, request):
-    #     form = forms.LoginForm(initial={"email": "jaeech@naver.com"})
-    #     return render(request, "users/login.html", {"form": form})
-
-    # def post(self, request):
-    #     form = forms.LoginForm(request.POST)
-    #     if form.is_valid():
-    #         # forms.py에서 데이터를 clean 후
-    #         # clean된 data를 돌려줌
-    #         # form.cleaned_data
-    #         email = form.cleaned_data.get("email")
-    #         password = form.cleaned_data.get("password")
-    #         user = authenticate(request, username=email, password=password)
-    #         if user is not None:
-    #             login(request, user)
-    #             return redirect(reverse("core:home"))
-
-    #     return render(request, "users/login.html", {"form": form})
-
 
 def log_out(request):
     logout(request)
