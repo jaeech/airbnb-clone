@@ -60,7 +60,6 @@ class User(AbstractUser):
     login_method = models.CharField(
         max_length=30, choices=LOGIN_CHOICES, default=LOGIN_EMAIL
     )
-
     # 이메일 인증을 여러번 사용하고 싶기때문에
     # views.py의 SignUp에 직접 만들지 않고
     # models에 method로 추가

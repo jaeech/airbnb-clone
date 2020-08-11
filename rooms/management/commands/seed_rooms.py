@@ -62,7 +62,7 @@ class Command(BaseCommand):
                 # ForeignKey을 가지는 object에 대한 생성방식
                 room_models.Photo.objects.create(
                     caption=seeder.faker.city(),
-                    file=f"/room_photos/{random.randint(1,30)}.webp",
+                    file=f"/room_photos/{random.randint(1,15)}.webp",
                     room=room_name,
                 )
 

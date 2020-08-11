@@ -17,7 +17,9 @@ class Command(BaseCommand):
         # argument의 number를 받아옴
         number = options.get("number")
         seeder = Seed.seeder()
-        seeder.add_entity(User, number, {"is_staff": False, "is_superuser": False})
+        seeder.add_entity(
+            User, number, {"is_staff": False, "is_superuser": False, "email_secret": ""}
+        )
         seeder.execute()
 
         self.stdout.write(self.style.SUCCESS(f"{number} users created"))

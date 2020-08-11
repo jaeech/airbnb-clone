@@ -13,7 +13,6 @@ class LoginView(FormView):
     # config.urls.py가 불려오기 전에 불려오는 것을 방지하기위해서
     # reverse_lazy를 사용함
     success_url = reverse_lazy("core:home")
-    initial = {"email": "jaeech@naver.com"}
 
     def form_valid(self, form):
         email = form.cleaned_data.get("email")
@@ -72,7 +71,7 @@ def github_login(request):
     redirect_uri = "http://127.0.0.1:8000/users/login/github/callback"
     # Scope / allow_signup 등등 필요한 내역을 redirect에 포함 해놓아야함
     return redirect(
-        f"https://github.com/login/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&scope=read:user"
+        f"https://github.com/login/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&scope=read:user&scope=user:email"
     )
 
 
@@ -88,13 +87,12 @@ def github_callback(request):
         if code is not None:
             # 위에서 받아온 Github Code로 Access toke을 받아와야함
             # 보기 편하게 JSON 형식으로 요청
-            result = requests.post(
-                f"https://github.com/login/oauth/access_token?client_id={client_id}&code={code}&client_secret={client_secret}",
+            token_request = requests.post(
+                f"https://github.com/login/oauth/access_token?client_id={client_id}&client_secret={client_secret}&code={code}",
                 headers={"Accept": "application/json"},
             )
             # JSON으로 변환
-            token_json = result.json()
-            print(result_json)
+            token_json = token_request.json()
             # ACCESS TOKE 수령 ERROR 발생시, Login으로 되돌리기
             error = token_json.get("error", None)
             if error is not None:
@@ -113,14 +111,33 @@ def github_callback(request):
                     },
                 )
                 profile_json = profile_request.json()
-                print(profile_json)
+                print("profile:", profile_json)
                 username = profile_json.get("login", None)
                 if username is not None:
                     name = profile_json.get("name")
+                    if name is None:
+                        name = profile_json.get("login")
+
                     email = profile_json.get("email")
+                    if email is None:
+                        email_request = requests.get(
+                            "https://api.github.com/user/emails",
+                            headers={
+                                "Authorization": f"token {access_token}",
+                                "Accept": "application/vnd.github.v3+json",
+                            },
+                        )
+                        email_json = email_request.json()
+                        print(email_json)
+                        email = email_json[0].get("email")
+                        print("second email:", email)
                     bio = profile_json.get("bio")
+                    if bio is None:
+                        bio = ""
+
                     try:
                         user = models.User.objects.get(email=email)
+                        print(user)
                         if user.login_method != models.User.LOGIN_GITHUB:
                             raise GithubException()
                     except models.User.DoesNotExist:
@@ -130,12 +147,13 @@ def github_callback(request):
                             username=email,
                             bio=bio,
                             login_method=models.User.LOGIN_GITHUB,
+                            email_verified=True,
                         )
                         # 사용할 수 없는 user 비밀번호를 생성함
                         user.set_unusable_password()
                         # 위에 method가 저장을 지원하지 않아서 추가로 저장 필요
                         user.save()
-                        login(request, user)
+                    login(request, user)
                     return redirect(reverse("core:home"))
                 else:
                     raise GithubException()
@@ -144,3 +162,58 @@ def github_callback(request):
 
     except GithubException:
         return redirect(reverse("user:login"))
+
+
+def kakao_login(request):
+    client_id = os.environ.get("KAKAO_ID")
+    redirect_uri = "http://127.0.0.1:8000/users/login/kakao/callback"
+    return redirect(
+        f"https://kauth.kakao.com/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code"
+    )
+
+
+class KakaoExepction(Exception):
+    pass
+
+
+def kakao_callback(request):
+    try:
+        code = request.GET.get("code")
+        client_id = os.environ.get("KAKAO_ID")
+        redirect_uri = "http://127.0.0.1:8000/users/login/kakao/callback"
+        token_request = requests.post(
+            f"https://kauth.kakao.com//oauth/token?grant_type=authorization_code&client_id={client_id}&redirect_uri={redirect_uri}&code={code}"
+        )
+        token_json = token_request.json()
+        error = token_json.get("error", None)
+        if error is not None:
+            raise KakaoExepction()
+        else:
+            access_token = token_json.get("access_token")
+            profile_request = requests.get(
+                "http:/kapi.kakao.com//v1/user/access_token_info",
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+            profile_json = profile_request.get()
+            email = profile_json.get("kaccount_email", None)
+            if email is None:
+                raise KakaoExepction()
+            properties = profile_json.get("properties")
+            nickname = properties.get("nickname")
+            profile_image = properties.get("profile_image")
+            try:
+                user = models.User.objects.get(email=email)
+                if user.login_method == models.User.LOGIN_KAKAO:
+                    raise KakaoExepction()
+            except models.User.DoesNotExist:
+                user = models.User.objects.create(
+                    email=email,
+                    first_name=nickname,
+                    username=email,
+                    login_method=models.User.LOGIN_KAKAO,
+                    email_verified=True,
+                )
+            login(request, user)
+            return redirect(reverse("core:home"))
+    except KakaoExepction:
+        return redirect(reverse("users:login"))
