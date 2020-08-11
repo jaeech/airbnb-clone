@@ -4,6 +4,9 @@ from django.views.generic import FormView
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
+
+# 가공되지 않은 Byte로 이루어진 정보를 파일로 만들 수 있음
+from django.core.files.base import ContentFile
 from . import forms, models
 
 
@@ -182,7 +185,7 @@ def kakao_callback(request):
         client_id = os.environ.get("KAKAO_ID")
         redirect_uri = "http://127.0.0.1:8000/users/login/kakao/callback"
         token_request = requests.post(
-            f"https://kauth.kakao.com//oauth/token?grant_type=authorization_code&client_id={client_id}&redirect_uri={redirect_uri}&code={code}"
+            f"https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id={client_id}&redirect_uri={redirect_uri}&code={code}"
         )
         token_json = token_request.json()
         error = token_json.get("error", None)
@@ -191,11 +194,12 @@ def kakao_callback(request):
         else:
             access_token = token_json.get("access_token")
             profile_request = requests.get(
-                "http:/kapi.kakao.com//v1/user/access_token_info",
+                "https://kapi.kakao.com/v2/user/me",
                 headers={"Authorization": f"Bearer {access_token}"},
             )
-            profile_json = profile_request.get()
-            email = profile_json.get("kaccount_email", None)
+            profile_json = profile_request.json()
+            kakao_account = profile_json.get("kakao_account")
+            email = kakao_account.get("email", None)
             if email is None:
                 raise KakaoExepction()
             properties = profile_json.get("properties")
@@ -203,7 +207,8 @@ def kakao_callback(request):
             profile_image = properties.get("profile_image")
             try:
                 user = models.User.objects.get(email=email)
-                if user.login_method == models.User.LOGIN_KAKAO:
+                print(user)
+                if user.login_method != models.User.LOGIN_KAKAO:
                     raise KakaoExepction()
             except models.User.DoesNotExist:
                 user = models.User.objects.create(
@@ -213,6 +218,16 @@ def kakao_callback(request):
                     login_method=models.User.LOGIN_KAKAO,
                     email_verified=True,
                 )
+                user.set_unusable_password()
+                user.save()
+                if profile_image is not None:
+                    photo_reqeust = requests.get(profile_image)
+                    # 사진URL을 파일로 가져옴
+                    # ContentFile 로 변환을 해줘야함
+                    # 가공되지 않은 Byte로 이루어진 정보를 파일로 만들 수 있음
+                    user.avatar.save(
+                        f"{nickname}-avatar", ContentFile(photo_reqeust.content)
+                    )
             login(request, user)
             return redirect(reverse("core:home"))
     except KakaoExepction:
