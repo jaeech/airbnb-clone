@@ -63,6 +63,7 @@ class User(AbstractUser):
     # 이메일 인증을 여러번 사용하고 싶기때문에
     # views.py의 SignUp에 직접 만들지 않고
     # models에 method로 추가
+
     def verify_email(self):
         if self.email_verified is False:
             secret = uuid.uuid4().hex[:20]

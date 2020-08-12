@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
 from . import models
 
 
@@ -27,37 +28,26 @@ class LoginForm(forms.Form):
             self.add_error("email", forms.ValidationError("User does not exist"))
 
 
-class SignUpForm(forms.ModelForm):
-    # 기존 Model과여 연결성을 위해서
-    # ModelForm을 사용
-
+class SignUpForm(UserCreationForm):
     class Meta:
-        # 어떤 model을 연결시킬 건지 지정
         model = models.User
-        # 어떤 항목들을 Form에 사용할건지 지정
         fields = ("first_name", "last_name", "email")
 
-    # 새로만들 내역이기 때문에 별도로 지정해줘야함
-    password = forms.CharField(widget=forms.PasswordInput)
-    password1 = forms.CharField(widget=forms.PasswordInput, label="Confirm Password")
+    password1 = forms.CharField(widget=forms.PasswordInput, label="Password")
+    password2 = forms.CharField(widget=forms.PasswordInput, label="Confirm Password")
 
-    # clean_passwod1은 우리가 직접확인해야해서 유지
-    def clean_password1(self):
-        password = self.cleaned_data.get("password")
+    def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
-
-        if password != password1:
+        password2 = self.cleaned_data.get("password2")
+        if password1 != password2:
             raise forms.ValidationError("Password confirmation does not match")
         else:
-            return password
+            return password1
 
-    # 기본설정된 save를 override
     def save(self, *args, **kwargs):
-        email = self.cleaned_data.get("email")
-        password = self.cleaned_data.get("password")
-        # commit=False는 Database에 저장하지 말라는 뜻
         user = super().save(commit=False)
+        email = self.cleaned_data.get("email")
+        password = self.cleaned_data.get("password1")
         user.username = email
         user.set_password(password)
         user.save()
-

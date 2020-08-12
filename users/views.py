@@ -4,6 +4,7 @@ from django.views.generic import FormView
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm
 
 # 가공되지 않은 Byte로 이루어진 정보를 파일로 만들 수 있음
 from django.core.files.base import ContentFile
@@ -43,11 +44,12 @@ class SignUpView(FormView):
         # form 이 유효하면 form을 저장할것
         form.save()
         email = form.cleaned_data.get("email")
-        password = form.cleaned_data.get("password")
+        password = form.cleaned_data.get("password1")
         user = authenticate(self.request, username=email, password=password)
         if user is not None:
             login(self.request, user)
         # Models.py에 만든 veryfy_email method를 사용
+        print(user)
         user.verify_email()
         return super().form_valid(form)
 
