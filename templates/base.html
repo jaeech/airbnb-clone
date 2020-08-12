@@ -8,20 +8,24 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <title>{% block page_title %} {% endblock page_title %} I Nbnb</title>
   </head>
-  <body>
-    <haeder>
-    {% include "partials/nav.html" %}
-    {% block search-bar %}
-    <form method= get action="{% url "rooms:search" %}">
-      <input name="city" placeholder="Search by City" />
-    </form>    
-    {% endblock search-bar %}
-
-
-
+  <body class="text-gray-800 mt-20">
+    <header class="container max-w-full inset-0 flex justify-between px-4 h-16 border-b border-gray-400 fixed bg-white">    
+      <div class="flex items-center w-10/12">
+        <a href="{% url 'core:home' %}" class="mr-3">
+          <img class="w-16" src="{% static 'img/logo.png' %}" />
+        </a>
+        {% block search-bar %}
+        <form method= get action="{% url "rooms:search" %}" class="w-9/12">
+          <input class="search-box border w-9/12 px-5 py-2 font-medium placeholder-gray-700 rounded-lg shadow-md hover:shadow-lg focus:outline-none"name="city" placeholder="Search by City" />
+        </form>
+        {% endblock search-bar %}        
+      </div>
+      {% include "partials/nav.html" %}
     </header>
+    
 
-    {% block content %}
-    {% endblock content %} {% include "partials/footer.html" %}
+    {% block content %}{% endblock content %}
+
+    {% include "partials/footer.html" %}
   </body>
 </html>
