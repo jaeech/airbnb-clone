@@ -49,7 +49,6 @@ class SignUpView(FormView):
         if user is not None:
             login(self.request, user)
         # Models.py에 만든 veryfy_email method를 사용
-        print(user)
         user.verify_email()
         return super().form_valid(form)
 
@@ -116,7 +115,6 @@ def github_callback(request):
                     },
                 )
                 profile_json = profile_request.json()
-                print("profile:", profile_json)
                 username = profile_json.get("login", None)
                 if username is not None:
                     name = profile_json.get("name")
@@ -133,16 +131,13 @@ def github_callback(request):
                             },
                         )
                         email_json = email_request.json()
-                        print(email_json)
                         email = email_json[0].get("email")
-                        print("second email:", email)
                     bio = profile_json.get("bio")
                     if bio is None:
                         bio = ""
 
                     try:
                         user = models.User.objects.get(email=email)
-                        print(user)
                         if user.login_method != models.User.LOGIN_GITHUB:
                             raise GithubException()
                     except models.User.DoesNotExist:
@@ -209,7 +204,6 @@ def kakao_callback(request):
             profile_image = properties.get("profile_image")
             try:
                 user = models.User.objects.get(email=email)
-                print(user)
                 if user.login_method != models.User.LOGIN_KAKAO:
                     raise KakaoExepction()
             except models.User.DoesNotExist:

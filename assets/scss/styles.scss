@@ -16,4 +16,15 @@
   transition: border 0.2s linear;
 }
 
+.btn {
+  @apply text-center rounded-md py-5 text-lg font-bold;
+}
+
+input {
+  @apply w-full rounded-md py-5 text-lg font-bold mb-3 border border-gray-600 px-5 text-left;
+  &:focus {
+    @apply outline-none border-teal-500;
+  }
+}
+
 @tailwind utilities;
