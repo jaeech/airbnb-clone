@@ -8,7 +8,7 @@ class HomeView(ListView):
     """ HomeView Definition"""
 
     model = models.Room
-    paginate_by = 10
+    paginate_by = 12
     parginate_orphans = 5
     ordering = "created"
     # object_list의 명칭을 직정해줄 수 있음
@@ -99,7 +99,7 @@ class SearchView(View):
                 # Paginator를 사용하려면 order가 있는 QuerySet이여야 함
                 qs = models.Room.objects.filter(**filter_args).order_by("created")
 
-                paginator = Paginator(qs, 3, orphans=1)
+                paginator = Paginator(qs, 12, orphans=4)
 
                 page = request.GET.get("page", 1)
 
@@ -133,7 +133,7 @@ class SearchView(View):
 
                 qs = models.Room.objects.filter(**filter_args).order_by("created")
 
-                paginator = Paginator(qs, 10, orphans=5)
+                paginator = Paginator(qs, 12, orphans=4)
 
                 page = request.GET.get("page", 1)
 
