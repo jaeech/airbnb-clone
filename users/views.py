@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
 
 # 가공되지 않은 Byte로 이루어진 정보를 파일로 만들 수 있음
 from django.core.files.base import ContentFile
@@ -23,11 +24,13 @@ class LoginView(FormView):
         password = form.cleaned_data.get("password")
         user = authenticate(self.request, username=email, password=password)
         if user is not None:
+            messages.success(self.request, f"Welcom back {user.first_name}")
             login(self.request, user)
         return super().form_valid(form)
 
 
 def log_out(request):
+    messages.info(request, f"See you again {request.user.first_name}")
     logout(request)
     return redirect(reverse("core:home"))
 
@@ -100,7 +103,7 @@ def github_callback(request):
             # ACCESS TOKE 수령 ERROR 발생시, Login으로 되돌리기
             error = token_json.get("error", None)
             if error is not None:
-                raise GithubException()
+                raise GithubException("Can't get the access token.")
             else:
                 # result_json에 확인가능한 access_token 읽어서
                 access_token = token_json.get("access_token")
@@ -139,7 +142,9 @@ def github_callback(request):
                     try:
                         user = models.User.objects.get(email=email)
                         if user.login_method != models.User.LOGIN_GITHUB:
-                            raise GithubException()
+                            raise GithubException(
+                                f"Please log in with: {user.login_method}"
+                            )
                     except models.User.DoesNotExist:
                         user = models.User.objects.create(
                             email=email,
@@ -154,14 +159,16 @@ def github_callback(request):
                         # 위에 method가 저장을 지원하지 않아서 추가로 저장 필요
                         user.save()
                     login(request, user)
+                    messages.success(request, f"Welcome back {user.first_name}")
                     return redirect(reverse("core:home"))
                 else:
-                    raise GithubException()
+                    raise GithubException("Can't get your profile from Github.")
         else:
-            raise GithubException()
+            raise GithubException("Can't get your profile")
 
-    except GithubException:
-        return redirect(reverse("user:login"))
+    except GithubException as e:
+        messages.error(request, e)
+        return redirect(reverse("users:login"))
 
 
 def kakao_login(request):
@@ -187,7 +194,7 @@ def kakao_callback(request):
         token_json = token_request.json()
         error = token_json.get("error", None)
         if error is not None:
-            raise KakaoExepction()
+            raise KakaoExepction("Can't get the authorization code.")
         else:
             access_token = token_json.get("access_token")
             profile_request = requests.get(
@@ -198,14 +205,14 @@ def kakao_callback(request):
             kakao_account = profile_json.get("kakao_account")
             email = kakao_account.get("email", None)
             if email is None:
-                raise KakaoExepction()
+                raise KakaoExepction("Please provide us your email.")
             properties = profile_json.get("properties")
             nickname = properties.get("nickname")
             profile_image = properties.get("profile_image")
             try:
                 user = models.User.objects.get(email=email)
                 if user.login_method != models.User.LOGIN_KAKAO:
-                    raise KakaoExepction()
+                    raise KakaoExepction(f"Please log in with: {user.login_method}")
             except models.User.DoesNotExist:
                 user = models.User.objects.create(
                     email=email,
@@ -224,7 +231,9 @@ def kakao_callback(request):
                     user.avatar.save(
                         f"{nickname}-avatar", ContentFile(photo_reqeust.content)
                     )
+            messages.success(request, f"Welcome back {user.first_name}")
             login(request, user)
             return redirect(reverse("core:home"))
-    except KakaoExepction:
+    except KakaoExepction as e:
+        messages.error(request, e)
         return redirect(reverse("users:login"))
