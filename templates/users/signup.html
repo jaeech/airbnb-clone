@@ -12,28 +12,12 @@
 {% block content %}
     <div class="container lg:w-5/12 md:w-1/2 xl:w-1/3 flex flex-col items-center border rounded-lg p-6 border-gray-800 mx-auto my-10">
         {% include 'partials/social_login.html' %}
-        <form class="w-full" method="POST" action="{% url "users:signup" %}">
-            {% csrf_token %}
-    
-            {% if form.non_field_errors %}
-                {% for error in form.non_field_errors %}
-                    {{error}}
-                {% endfor %}
-            {% endif %}
-                
-            
-            {% for field in form %}
-                <div class="input {% if field.errors %}has_error{% endif %}">
-                    {{field}}
-                    <span>{{field.errors}}</span>
-                </div>
-            {% endfor %}
 
-            <button class="btn bg-red-500 text-white">Sign Up</button>
-        </form>
+        {% include 'mixins/auth/auth_form.html' with form=form cta="Sign Up" %}
+
         <div class="flex mt-5">
             <span class="mr-3">Have an account?</span>
-            <a href="{% url 'users:login' %}" class="text-teal-600 font-bold"> Login</a>
+            <a href="{% url 'users:login' %}" class="text-teal-600 font-bold">Log in</a>
         </div>
     </div>
 {% endblock content %}
