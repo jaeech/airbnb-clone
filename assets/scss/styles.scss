@@ -21,15 +21,26 @@
 }
 
 input {
-  @apply w-full rounded-md py-5 text-lg font-bold mb-3 border border-gray-600 px-5 text-left;
+  @apply w-full rounded-md py-5 text-lg font-bold border border-gray-600 px-5 text-left;
   &:focus {
     @apply outline-none border-teal-500;
   }
 }
 
 form {
-  input {
+  .input {
     @apply mb-3;
+    &.has_error {
+      input {
+        @apply bg-red-200 border-gray-600;
+        &:focus {
+          @apply border-gray-600;
+        }
+      }
+    }
+    span {
+      @apply text-base text-red-600 font-semibold;
+    }
   }
 }
 

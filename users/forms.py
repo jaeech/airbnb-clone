@@ -57,6 +57,14 @@ class SignUpForm(UserCreationForm):
         else:
             return password1
 
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        try:
+            models.User.objects.get(email=email)
+            raise forms.ValidationError("This email is already taken")
+        except models.User.DoesNotExist:
+            return email
+
     def save(self, *args, **kwargs):
         user = super().save(commit=False)
         email = self.cleaned_data.get("email")
