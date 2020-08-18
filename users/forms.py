@@ -4,9 +4,11 @@ from . import models
 
 
 class LoginForm(forms.Form):
-
-    email = forms.EmailField()
-    password = forms.CharField(widget=forms.PasswordInput)
+    # Django를 통해서, HTML을 추가해주는 방법 atrrs (Attribute 추가 방식)
+    email = forms.EmailField(widget=forms.EmailInput(attrs={"placeholder": "Email"}))
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={"placeholder": "Password"})
+    )
 
     # validate를 항목할 앞에 clean_을 꼭 붙여야함!
     # clean만 있는 method의 경우에는,
@@ -32,9 +34,20 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = models.User
         fields = ("first_name", "last_name", "email")
+        # USerCreation Form을 사용했을때, 각 필드에 대한 placeholder 지정 및
+        # Form 입력방식 설정
+        widgets = {
+            "first_name": forms.TextInput(attrs={"placeholder": "First name"}),
+            "last_name": forms.TextInput(attrs={"placeholder": "Last name"}),
+            "email": forms.EmailInput(attrs={"placeholder": "Email"}),
+        }
 
-    password1 = forms.CharField(widget=forms.PasswordInput, label="Password")
-    password2 = forms.CharField(widget=forms.PasswordInput, label="Confirm Password")
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={"placeholder": "Password"})
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={"placeholder": "Confirm Password"})
+    )
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
