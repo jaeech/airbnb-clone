@@ -7,6 +7,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.mail import send_mail
 from django.utils.html import strip_tags
+from django.shortcuts import reverse
 from django.template.loader import render_to_string
 
 
@@ -60,6 +61,10 @@ class User(AbstractUser):
     login_method = models.CharField(
         max_length=30, choices=LOGIN_CHOICES, default=LOGIN_EMAIL
     )
+
+    def get_absolute_url(self):
+        return reverse("users:profile", kwargs={"pk": self.pk})
+
     # 이메일 인증을 여러번 사용하고 싶기때문에
     # views.py의 SignUp에 직접 만들지 않고
     # models에 method로 추가
