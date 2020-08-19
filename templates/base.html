@@ -11,7 +11,7 @@
   </head>
   <body class="text-gray-800 mt-20 font-light">
     {% include 'partials/messages.html' %}
-    <header class="container max-w-full inset-0 flex justify-between px-4 h-16 border-b border-gray-400 fixed bg-white">    
+    <header class="container max-w-full inset-0 z-10 flex justify-between px-4 h-16 border-b border-gray-400 fixed bg-white">    
       <div class="flex items-center w-10/12">
         <a href="{% url 'core:home' %}" class="mr-3">
           <img class="w-16" src="{% static 'img/logo.png' %}" />
