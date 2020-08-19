@@ -7,7 +7,9 @@ app_name = "rooms"
 # html에 넣을 argument는 <int:pk>의 pk가 넘어가는 것
 # Detailview에서 자동으로 pk를 끌어가서 view를 설정함
 urlpatterns = [
-    path("<int:pk>", views.RoomDetail.as_view(), name="detail"),
+    path("<int:pk>/", views.RoomDetail.as_view(), name="detail"),
+    path("<int:pk>/edit/", views.EditRoomView.as_view(), name="edit"),
+    path("<int:pk>/photos/", views.RoomPhotosView.as_view(), name="photos"),
     path("search/", views.SearchView.as_view(), name="search"),
 ]
 
