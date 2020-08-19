@@ -22,8 +22,13 @@
                     <span class="text-gray-700 font-light">{{room.city}}</span>
                 </div>
                 <a href="{{room.host.get_absolute_url}}" class="flex flex-col items-center">
-                    {% include 'mixins/user_avatar.html' with user_obj=room.host %}
-                    <span class="mt-1 text-gray-800">{{room.host.first_name}}</span>
+                    {% include 'mixins/user_avatar.html' with user_obj=room.host h_and_w='h-16 w-16' %}
+                    <div class="flex items-center">
+                        <span class="mt-1 text-gray-800">{{room.host.first_name}}</span>
+                        {% if room.host.superhost %}
+                        <i class="fas fa-check-circle text-teal-400 ml-1"></i>
+                        {% endif %}
+                    </div>
                 </a>
             </div>
             <div class="flex border-section">
