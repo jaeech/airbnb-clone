@@ -6,14 +6,15 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 
 # 가공되지 않은 Byte로 이루어진 정보를 파일로 만들 수 있음
 from django.core.files.base import ContentFile
-from . import forms, models
+from . import forms, models, mixins
 
 
-class LoginView(FormView):
+class LoginView(mixins.LoggedOutOnlyView, FormView):
     template_name = "users/login.html"
     form_class = forms.LoginForm
     # config.urls.py가 불려오기 전에 불려오는 것을 방지하기위해서
@@ -29,6 +30,13 @@ class LoginView(FormView):
             login(self.request, user)
         return super().form_valid(form)
 
+    def get_success_url(self):
+        next_arg = self.request.GET.get("next")
+        if next_arg is not None:
+            return next_arg
+        else:
+            return reverse("core:home")
+
 
 def log_out(request):
     messages.info(request, f"See you again {request.user.first_name}")
@@ -36,7 +44,7 @@ def log_out(request):
     return redirect(reverse("core:home"))
 
 
-class SignUpView(FormView):
+class SignUpView(mixins.LoggedOutOnlyView, FormView):
 
     template_name = "users/signup.html"
     form_class = forms.SignUpForm
@@ -240,7 +248,7 @@ def kakao_callback(request):
         return redirect(reverse("users:login"))
 
 
-class UserProfileView(DetailView):
+class UserProfileView(mixins.LoggedInOnlyView, DetailView):
 
     model = models.User
     context_object_name = "user_obj"
@@ -252,7 +260,7 @@ class UserProfileView(DetailView):
     #     return context
 
 
-class UpdateProfileView(UpdateView):
+class UpdateProfileView(mixins.LoggedInOnlyView, SuccessMessageMixin, UpdateView):
 
     model = models.User
     template_name = "users/update-profile.html"
@@ -267,6 +275,10 @@ class UpdateProfileView(UpdateView):
         "currency",
     }
 
+    success_message = "Profile updated"
+
+    # 해당 페이지가 보여주는 object를 가져오기 위해서
+    # 이번 경우에는, url에 PK 등 가져올 수 있는 정보가 없기 때문에
     def get_object(self, querySet=None):
         return self.request.user
 
@@ -289,8 +301,14 @@ class UpdateProfileView(UpdateView):
         return form
 
 
-class UpdatePasswordView(PasswordChangeView):
+class UpdatePasswordView(
+    mixins.EmailLoginOnlyView,
+    mixins.LoggedInOnlyView,
+    SuccessMessageMixin,
+    PasswordChangeView,
+):
     template_name = "users/update-password.html"
+    success_message = "Password updated"
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class=form_class)
@@ -301,3 +319,6 @@ class UpdatePasswordView(PasswordChangeView):
             "placeholder": "Confirm new password"
         }
         return form
+
+    def get_success_url(self):
+        return self.request.user.get_absolute_url()
