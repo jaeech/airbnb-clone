@@ -1,5 +1,6 @@
 import os
 import requests
+from django.contrib.auth.views import PasswordChangeView
 from django.views.generic import FormView, DetailView, UpdateView
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, reverse
@@ -256,9 +257,9 @@ class UpdateProfileView(UpdateView):
     model = models.User
     template_name = "users/update-profile.html"
     fields = {
+        "email",
         "first_name",
         "last_name",
-        "avatar",
         "gender",
         "bio",
         "birthdate",
@@ -268,3 +269,35 @@ class UpdateProfileView(UpdateView):
 
     def get_object(self, querySet=None):
         return self.request.user
+
+    # 이메일과 UserID를 동일하게 유지하기 위해서
+    def form_valid(self, form):
+        email = form.cleaned_data.get("email")
+        self.object.username = email
+        self.object.save()
+        return super().form_valid(form)
+
+    # 각 Form에 대한 placeholder를 지정해주기 위해서
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=form_class)
+        form.fields["email"].widget.attrs = {"placeholder": "Email"}
+        form.fields["first_name"].widget.attrs = {"placeholder": "First Name"}
+        form.fields["last_name"].widget.attrs = {"placeholder": "Last Name"}
+        form.fields["gender"].widget.attrs = {"placeholder": "Gender"}
+        form.fields["bio"].widget.attrs = {"placeholder": "Bio"}
+        form.fields["birthdate"].widget.attrs = {"placeholder": "Birthdate(YYYY-MM-DD)"}
+        return form
+
+
+class UpdatePasswordView(PasswordChangeView):
+    template_name = "users/update-password.html"
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=form_class)
+        print(form)
+        form.fields["old_password"].widget.attrs = {"placeholder": "Current password"}
+        form.fields["new_password1"].widget.attrs = {"placeholder": "New password"}
+        form.fields["new_password2"].widget.attrs = {
+            "placeholder": "Confirm new password"
+        }
+        return form

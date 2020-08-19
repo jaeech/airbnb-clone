@@ -24,11 +24,22 @@
   @apply w-full text-center rounded-md py-5 text-lg font-bold text-white bg-red-400;
 }
 
-input {
+input,
+textarea,
+select {
   @apply w-full rounded-md py-5 text-lg font-bold border border-gray-600 px-5 text-left;
   &:focus {
     @apply outline-none border-teal-500;
   }
+}
+
+textarea {
+  resize: none;
+  height: 100px;
+}
+
+select {
+  height: 50px;
 }
 
 form {
