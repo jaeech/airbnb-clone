@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect, reverse
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from users import mixins as user_mixins
 from . import models, forms
 
@@ -218,3 +219,26 @@ def delete_photo(request, room_pk, photo_pk):
         return redirect(reverse("core:home"))
     return redirect(reverse("rooms:photos", kwargs={"pk": room_pk}))
 
+
+class EditPhotoView(user_mixins.LoggedInOnlyView, SuccessMessageMixin, UpdateView):
+
+    model = models.Photo
+    template_name = "rooms/photo_edit.html"
+    fields = ("caption",)
+    pk_url_kwarg = "photo_pk"
+    success_message = "Photo updated"
+
+    # 성공한 후, URL redirct를 위해서,
+    # room_pk 를 넣어주기 위해서는 method를 사용해야함
+    def get_success_url(self):
+        room_pk = self.kwargs.get("room_pk")
+        return reverse("rooms:photos", kwargs={"pk": room_pk})
+
+    def get_object(self, queryset=None):
+        # 지금 있는 페이지의 Room을 확인 후
+        # Room 주인이랑 접속해있는 User랑 비교 후
+        # 본인 소유가 아니면 HTTP404 Error Raise
+        photo = super().get_object(queryset=queryset)
+        if photo.room.host.pk != self.request.user.pk:
+            raise Http404()
+        return photo
