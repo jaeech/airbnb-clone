@@ -150,3 +150,6 @@ EMAIL_PORT = "587"
 EMAIL_HOST_USER = os.environ.get("MAILGUN_USERNAME")
 EMAIL_HOST_PASSWORD = os.environ.get("MAILGUN_PASSWORD")
 EMAIL_FROM = "verifymail@sandbox9463943c13a343b8aea4692e238c06fe.mailgun.org"
+
+# login_required decorator 사용을 위해서 필요
+LOGIN_URL = "/users/login/"

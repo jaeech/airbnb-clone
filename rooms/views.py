@@ -1,8 +1,9 @@
 from django.http import Http404
-from django.contrib import messages
 from django.views.generic import ListView, DetailView, View, UpdateView
-from django.shortcuts import render
+from django.shortcuts import render, redirect, reverse
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from users import mixins as user_mixins
 from . import models, forms
 
@@ -197,3 +198,23 @@ class RoomPhotosView(DetailView):
         if room.host.pk != self.request.user.pk:
             raise Http404()
         return room
+
+
+# login 했을때만 적용되는거
+@login_required
+# request에 추가로 받아올 내역들 room_pk photo_pk가 있으니까
+def delete_photo(request, room_pk, photo_pk):
+    # 현재 로그인되어있는 user 확인
+    user = request.user
+    try:
+        room = models.Room.objects.get(pk=room_pk)
+        # 로그인 되어있는 user랑 room 주인과 비교
+        if room.host.pk != user.pk:
+            messages.error(request, "No permission to delete taht photo")
+        else:
+            models.Photo.objects.filter(pk=photo_pk).delete()
+            messages.success(request, "Photo deleted")
+    except models.Room.DoesNotExist:
+        return redirect(reverse("core:home"))
+    return redirect(reverse("rooms:photos", kwargs={"pk": room_pk}))
+
