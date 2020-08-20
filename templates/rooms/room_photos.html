@@ -12,10 +12,14 @@
 {% block content %}
     <div class="container flex flex-col mx-auto my-10">
         
+        <div class="my-10 w-full flex">
+            <a href="{% url 'rooms:add-photo' room.pk %}" class="btn-link w-1/6 block mr-8">Upload Photo</a>
+        </div>
+
         {% for photo in room.photos.all %}
             <div class="mb-5 border rounded-lg p-6 border-gray-500 flex justify-between">
                 <div class="flex flex-start">
-                    <img src="{{photo.file.url}}" class="w-40 h-40">
+                    <img src="{{photo.file.url}}" class="w-40 h-32">
                     <span class="ml-5 text-xl">{{photo.caption}}</span>
                 </div>
                 <div class="flex flex-col w-1/5 ">

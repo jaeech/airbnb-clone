@@ -1,6 +1,7 @@
 from django.http import Http404
-from django.views.generic import ListView, DetailView, View, UpdateView
+from django.views.generic import ListView, DetailView, View, UpdateView, FormView
 from django.shortcuts import render, redirect, reverse
+from django.contrib import messages
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -242,3 +243,21 @@ class EditPhotoView(user_mixins.LoggedInOnlyView, SuccessMessageMixin, UpdateVie
         if photo.room.host.pk != self.request.user.pk:
             raise Http404()
         return photo
+
+
+class AddPhotoView(user_mixins.LoggedInOnlyView, SuccessMessageMixin, FormView):
+
+    model = models.Photo
+    template_name = "rooms/photo_create.html"
+    fields = ("caption", "file")
+    form_class = forms.CreatePhotoForm
+
+    # from.py에 pk를 전달해주기 위해서
+    # form valid를 불러 온후, pk를 전달
+    # form_valid는 항상 HTTP response를 필요로 함
+    def form_valid(self, form):
+        pk = self.kwargs.get("pk")
+        form.save(pk)
+        messages.success(self.request, "Photo uploaded")
+        return redirect(reverse("rooms:photos", kwargs={"pk": pk}))
+

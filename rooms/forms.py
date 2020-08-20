@@ -27,3 +27,22 @@ class SearchForm(forms.Form):
         queryset=models.Facility.objects.all(),
         widget=forms.CheckboxSelectMultiple,
     )
+
+
+class CreatePhotoForm(forms.ModelForm):
+    class Meta:
+        model = models.Photo
+        fields = (
+            "caption",
+            "file",
+        )
+
+    # form 자체에는 room이 지정이 안되어있기 때문에
+    # 실제로 저장이 이루어지기 전에, save method에 변형을 주어서
+    # room을 지정해 준 후 저장!
+    # views에서 보이는 room의 pk를 전달해주기 위해서 pk를 추가
+    def save(self, pk, *args, **kwargs):
+        photo = super().save(commit=False)
+        room = models.Room.objects.get(pk=pk)
+        photo.room = room
+        photo.save()
