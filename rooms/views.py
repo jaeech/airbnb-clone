@@ -247,9 +247,7 @@ class EditPhotoView(user_mixins.LoggedInOnlyView, SuccessMessageMixin, UpdateVie
 
 class AddPhotoView(user_mixins.LoggedInOnlyView, SuccessMessageMixin, FormView):
 
-    model = models.Photo
     template_name = "rooms/photo_create.html"
-    fields = ("caption", "file")
     form_class = forms.CreatePhotoForm
 
     # from.py에 pk를 전달해주기 위해서
