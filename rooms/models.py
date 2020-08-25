@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db import models
 
 # url의 이름을 받아서 해당 이름에 맞느 url을 불러오는 기능
@@ -13,6 +14,7 @@ from django_countries.fields import CountryField
 
 # 생성한 core app 에서 models를 가져와서 core_modles로 명명하여 사용
 from core import models as core_models
+from cal import Calendar
 
 # 이름을 저장해놓기 위해 만들어놓은 class
 class AbstractItem(core_models.TimeStampedModel):
@@ -143,3 +145,16 @@ class Room(core_models.TimeStampedModel):
     def get_next_four_photos(self):
         photo = self.photos.all()[1:5]
         return photo
+
+    def get_calendars(self):
+        now = timezone.now()
+        this_year = now.year
+        next_year = this_year
+        this_month = now.month
+        next_month = this_month + 1
+        if this_month == 12:
+            next_month = 1
+            next_year = next_year + 1
+        this_month_cal = Calendar(this_year, this_month)
+        next_month_cal = Calendar(next_year, next_month)
+        return [this_month_cal, next_month_cal]
