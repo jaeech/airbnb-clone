@@ -46,3 +46,34 @@ class CreatePhotoForm(forms.ModelForm):
         room = models.Room.objects.get(pk=pk)
         photo.room = room
         photo.save()
+
+
+class CreateRoomForm(forms.ModelForm):
+    class Meta:
+        model = models.Room
+        fields = (
+            "name",
+            "description",
+            "country",
+            "city",
+            "price",
+            "address",
+            "guests",
+            "beds",
+            "bedrooms",
+            "baths",
+            "check_in",
+            "check_out",
+            "instant_book",
+            "room_type",
+            "amenities",
+            "facilities",
+            "house_rules",
+        )
+
+    # room을 저장하지 않고, views.py에 전달하기 위해서
+    # 전달 후, room을 views.py 에서 저장 및 저장된 room으로 redirect
+    # 가능하게 만들기 위해
+    def save(self, *args, **kwargs):
+        room = super().save(commit=False)
+        return room

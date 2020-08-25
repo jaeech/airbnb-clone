@@ -259,3 +259,21 @@ class AddPhotoView(user_mixins.LoggedInOnlyView, SuccessMessageMixin, FormView):
         messages.success(self.request, "Photo uploaded")
         return redirect(reverse("rooms:photos", kwargs={"pk": pk}))
 
+
+class CreateRoomView(user_mixins.LoggedInOnlyView, FormView):
+    form_class = forms.CreateRoomForm
+    template_name = "rooms/room_create.html"
+
+    def form_valid(self, form):
+        # froms.py 을 저장하지 않고, views.py에 전달하기 위해서
+        room = form.save()
+        # 여기서 host 지정 및 저장
+        room.host = self.request.user
+        # Room 저장
+        room.save()
+        # many to many 내용을 저장하는건
+        # room을 저장한 후에 진행해야함
+        # 저장은 form을 저장해야함
+        form.save_m2m()
+        messages.success(self.request, "Room created")
+        return redirect(reverse("rooms:detail", kwargs={"pk": room.pk}))
